@@ -7,7 +7,7 @@ from ttkbootstrap import Style
 root = tk.Tk()
 root.title("Notes App")
 root.geometry("500x500")
-style = Style(theme='connect')
+style = Style(theme='journal')
 style = ttk.Style()
 
 # Configure the tab font to be bold
@@ -23,6 +23,7 @@ try:
         notes = json.load(f)
 except FileNotFoundError:
     pass
+
 # Create the notebook to hold the notes
 notebook = ttk.Notebook(root)
 notebook.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
@@ -85,3 +86,38 @@ def load_notes():
         # If the file does not exist, do nothing
         pass
 
+# Call the load_notes function when the app starts
+load_notes()
+# Create a function to delete a note
+def delete_note():
+    # Get the current tab index
+    current_tab = notebook.index(notebook.select())
+    
+    # Get the title of the note to be deleted
+    note_title = notebook.tab(current_tab, "text")
+    
+    # Show a confirmation dialog
+    confirm = messagebox.askyesno("Delete Note", 
+                                  f"Are you sure you want to delete {note_title}?")
+    
+    if confirm:
+        # Remove the note from the notebook
+        notebook.forget(current_tab)
+        
+        # Remove the note from the notes dictionary
+        notes.pop(note_title)
+        
+        # Save the notes dictionary to the file
+        with open("notes.json", "w") as f:
+            json.dump(notes, f)
+
+# Add buttons to the main window
+new_button = ttk.Button(root, text="New Note", 
+                        command=add_note, style="info.TButton")
+new_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+delete_button = ttk.Button(root, text="Delete", 
+                           command=delete_note, style="primary.TButton")
+delete_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+root.mainloop()
